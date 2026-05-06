@@ -1,7 +1,6 @@
 services:
   app:
     build: .
-    ports:
-      - "3000:3000"
     environment:
+      - SERVICE_FQDN_CSIS_3000
       - PORT=3000
