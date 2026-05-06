@@ -36,16 +36,12 @@ emojiButtons.forEach((button) => {
 });
 
 socket.addEventListener('open', () => {
-  statusEl.textContent = 'Live connection ready. Tap an emoji to rate.';
+  statusEl.textContent = 'People Connected: 0';
 });
 
-socket.addEventListener('close', () => {
-  statusEl.textContent = 'Disconnected. Refresh to reconnect.';
-});
+socket.addEventListener('close', () => {});
 
-socket.addEventListener('error', () => {
-  statusEl.textContent = 'Connection error. Refresh to try again.';
-});
+socket.addEventListener('error', () => {});
 
 socket.addEventListener('message', (event) => {
   let message;
@@ -58,5 +54,10 @@ socket.addEventListener('message', (event) => {
 
   if (message.type === 'emoji' && typeof message.emoji === 'string') {
     spawnEmoji(message.emoji);
+    return;
+  }
+
+  if (message.type === 'count' && Number.isInteger(message.count)) {
+    statusEl.textContent = `People Connected: ${message.count}`;
   }
 });

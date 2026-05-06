@@ -48,8 +48,22 @@ const server = http.createServer((req, res) => {
 const wss = new WebSocketServer({ noServer: true });
 const clients = new Set();
 
+function broadcastCount() {
+  const payload = JSON.stringify({
+    type: 'count',
+    count: clients.size,
+  });
+
+  for (const client of clients) {
+    if (client.readyState === client.OPEN) {
+      client.send(payload);
+    }
+  }
+}
+
 wss.on('connection', (socket) => {
   clients.add(socket);
+  broadcastCount();
 
   socket.on('message', (rawMessage) => {
     let message;
@@ -79,6 +93,7 @@ wss.on('connection', (socket) => {
 
   socket.on('close', () => {
     clients.delete(socket);
+    broadcastCount();
   });
 });
 
