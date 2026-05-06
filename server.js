@@ -43,12 +43,9 @@ function normalizeUrl(value) {
 }
 
 function getAppUrl(req) {
-  const configuredUrl = process.env.SERVICE_FQDN_CSIS_3000
-    || process.env.SERVICE_FQDN_CSIS
-    || process.env.SERVICE_FQDN_APP_3000
-    || process.env.SERVICE_FQDN_APP;
+  const configuredUrl = process.env.SERVICE_FQDN_APP;
 
-  if (configuredUrl && configuredUrl.trim()) {
+  if (configuredUrl && configuredUrl.trim() && !configuredUrl.includes('SERVICE_FQDN_APP')) {
     return normalizeUrl(configuredUrl);
   }
 
@@ -58,9 +55,11 @@ function getAppUrl(req) {
     || `localhost:${port}`;
   const forwardedProto = req.headers['x-forwarded-proto'];
   const protoHeader = (Array.isArray(forwardedProto) ? forwardedProto[0] : forwardedProto) || '';
-  const proto = protoHeader.split(',')[0].trim() || (host.includes('localhost') ? 'http' : 'https');
+  const cleanHost = host.split(',')[0].trim();
+  const isLocalHost = cleanHost.startsWith('localhost') || cleanHost.startsWith('127.') || cleanHost === '[::1]';
+  const proto = protoHeader.split(',')[0].trim() || (isLocalHost ? 'http' : 'https');
 
-  return `${proto}://${host.split(',')[0].trim()}`;
+  return `${proto}://${cleanHost}`;
 }
 
 function escapeHtml(value) {

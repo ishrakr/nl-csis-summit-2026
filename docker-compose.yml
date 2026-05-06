@@ -4,5 +4,5 @@ services:
 #    ports: 
 #      - 3000:3000
     environment:
-      - SERVICE_FQDN_CSIS_3000
+      - SERVICE_FQDN_APP
       - PORT=3000
