@@ -4,5 +4,5 @@ services:
 #    ports: 
 #      - 3000:3000
     environment:
-      - SERVICE_FQDN_APP
+      - SERVICE_FQDN_APP_3000
       - PORT=3000
