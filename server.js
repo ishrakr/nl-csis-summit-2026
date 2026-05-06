@@ -1,6 +1,7 @@
 const http = require('http');
 const fs = require('fs');
 const path = require('path');
+const { execFile } = require('child_process');
 const { WebSocketServer } = require('ws');
 
 const port = process.env.PORT || 3000;
@@ -31,6 +32,84 @@ function sendFile(res, filePath) {
   });
 }
 
+function normalizeUrl(value) {
+  const trimmed = value.trim();
+
+  if (/^https?:\/\//i.test(trimmed)) {
+    return trimmed;
+  }
+
+  return `https://${trimmed}`;
+}
+
+function getAppUrl(req) {
+  const configuredUrl = process.env.SERVICE_FQDN_CSIS_3000
+    || process.env.SERVICE_FQDN_CSIS
+    || process.env.SERVICE_FQDN_APP_3000
+    || process.env.SERVICE_FQDN_APP;
+
+  if (configuredUrl && configuredUrl.trim()) {
+    return normalizeUrl(configuredUrl);
+  }
+
+  const forwardedHost = req.headers['x-forwarded-host'];
+  const host = (Array.isArray(forwardedHost) ? forwardedHost[0] : forwardedHost)
+    || req.headers.host
+    || `localhost:${port}`;
+  const forwardedProto = req.headers['x-forwarded-proto'];
+  const protoHeader = (Array.isArray(forwardedProto) ? forwardedProto[0] : forwardedProto) || '';
+  const proto = protoHeader.split(',')[0].trim() || (host.includes('localhost') ? 'http' : 'https');
+
+  return `${proto}://${host.split(',')[0].trim()}`;
+}
+
+function escapeHtml(value) {
+  return value
+    .replace(/&/g, '&amp;')
+    .replace(/"/g, '&quot;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;');
+}
+
+function sendIndex(req, res, filePath) {
+  fs.readFile(filePath, 'utf8', (err, template) => {
+    if (err) {
+      res.writeHead(404, { 'Content-Type': 'text/plain; charset=utf-8' });
+      res.end('Not found');
+      return;
+    }
+
+    const appUrl = escapeHtml(getAppUrl(req));
+
+    res.writeHead(200, {
+      'Content-Type': 'text/html; charset=utf-8',
+      'Cache-Control': 'no-store',
+    });
+    res.end(template.replace(/__APP_URL__/g, appUrl));
+  });
+}
+
+function sendQrCode(req, res) {
+  execFile(
+    'qrencode',
+    ['-t', 'SVG', '--svg-path', '-l', 'H', '-m', '2', '-o', '-', getAppUrl(req)],
+    { maxBuffer: 1024 * 1024 },
+    (err, stdout) => {
+      if (err) {
+        res.writeHead(500, { 'Content-Type': 'text/plain; charset=utf-8' });
+        res.end('QR code generation failed');
+        return;
+      }
+
+      res.writeHead(200, {
+        'Content-Type': 'image/svg+xml',
+        'Cache-Control': 'no-store',
+      });
+      res.end(stdout);
+    },
+  );
+}
+
 const server = http.createServer((req, res) => {
   const requestPath = new URL(req.url, `http://${req.headers.host}`).pathname;
   const safePath = requestPath === '/' ? '/index.html' : requestPath;
@@ -39,6 +118,16 @@ const server = http.createServer((req, res) => {
   if (!filePath.startsWith(publicDir)) {
     res.writeHead(400, { 'Content-Type': 'text/plain; charset=utf-8' });
     res.end('Bad request');
+    return;
+  }
+
+  if (safePath === '/index.html') {
+    sendIndex(req, res, filePath);
+    return;
+  }
+
+  if (requestPath === '/qrcode.svg') {
+    sendQrCode(req, res);
     return;
   }
 
