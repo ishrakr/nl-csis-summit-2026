@@ -1,0 +1,142 @@
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  min-height: 100%;
+}
+
+body {
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  color: #f8fafc;
+  background:
+    radial-gradient(circle at top, rgba(56, 189, 248, 0.25), transparent 30%),
+    linear-gradient(160deg, #0f172a 0%, #111827 45%, #1f2937 100%);
+  overflow: hidden;
+}
+
+.app {
+  position: relative;
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+}
+
+.card {
+  width: min(100%, 560px);
+  padding: 32px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 28px;
+  background: rgba(15, 23, 42, 0.78);
+  backdrop-filter: blur(16px);
+  box-shadow: 0 24px 90px rgba(0, 0, 0, 0.35);
+  text-align: center;
+  position: relative;
+  z-index: 2;
+}
+
+.eyebrow {
+  margin: 0 0 8px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  font-size: 0.78rem;
+  color: #7dd3fc;
+}
+
+h1 {
+  margin: 0;
+  font-size: clamp(2rem, 4vw, 3.5rem);
+  line-height: 1;
+}
+
+.description {
+  margin: 16px auto 0;
+  max-width: 40ch;
+  color: #cbd5e1;
+  font-size: 1.05rem;
+}
+
+.emoji-row {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 28px;
+}
+
+.emoji-button {
+  width: 68px;
+  height: 68px;
+  border: 0;
+  border-radius: 20px;
+  font-size: 2rem;
+  cursor: pointer;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.18), rgba(255, 255, 255, 0.06));
+  color: inherit;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.15), 0 12px 30px rgba(0, 0, 0, 0.22);
+  transition: transform 120ms ease, box-shadow 120ms ease;
+}
+
+.emoji-button:hover {
+  transform: translateY(-2px) scale(1.03);
+}
+
+.emoji-button:active {
+  transform: translateY(1px) scale(0.98);
+}
+
+.status {
+  margin: 22px 0 0;
+  color: #94a3b8;
+  font-size: 0.95rem;
+}
+
+.float-layer {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.float-emoji {
+  position: absolute;
+  left: var(--x);
+  bottom: -64px;
+  font-size: var(--size);
+  transform: translateX(-50%);
+  animation: float-up var(--duration) ease-out forwards;
+  filter: drop-shadow(0 10px 12px rgba(0, 0, 0, 0.22));
+}
+
+@keyframes float-up {
+  0% {
+    opacity: 0;
+    transform: translateX(-50%) translateY(0) scale(0.8) rotate(0deg);
+  }
+
+  10% {
+    opacity: 1;
+  }
+
+  100% {
+    opacity: 0;
+    transform: translateX(calc(-50% + var(--drift))) translateY(-120vh) scale(1.45) rotate(var(--spin));
+  }
+}
+
+@media (max-width: 640px) {
+  .card {
+    padding: 24px 18px;
+    border-radius: 24px;
+  }
+
+  .emoji-button {
+    width: 60px;
+    height: 60px;
+    border-radius: 18px;
+    font-size: 1.75rem;
+  }
+}

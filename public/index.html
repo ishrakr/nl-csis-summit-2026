@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Emoji Rating Live</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <main class="app">
+      <section class="card">
+        <p class="eyebrow">Live rating board</p>
+        <h1>React with an emoji</h1>
+        <p class="description">Everyone connected here will see your emoji float up in real time.</p>
+
+        <div class="emoji-row" aria-label="Emoji reactions">
+          <button class="emoji-button" data-emoji="😍" aria-label="Love">😍</button>
+          <button class="emoji-button" data-emoji="👏" aria-label="Clap">👏</button>
+          <button class="emoji-button" data-emoji="🔥" aria-label="Fire">🔥</button>
+          <button class="emoji-button" data-emoji="🚀" aria-label="Rocket">🚀</button>
+          <button class="emoji-button" data-emoji="⭐" aria-label="Star">⭐</button>
+        </div>
+
+        <p class="status" id="status">Connecting to live feed...</p>
+      </section>
+
+      <div id="float-layer" class="float-layer" aria-hidden="true"></div>
+    </main>
+
+    <script src="/client.js"></script>
+  </body>
+</html>

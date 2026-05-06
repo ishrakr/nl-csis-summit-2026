@@ -1,0 +1,16 @@
+{
+  "name": "nl-csis-summit-2026",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Simple WebSocket emoji rating page",
+  "type": "commonjs",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "ws": "^8.18.3"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
