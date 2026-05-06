@@ -1,7 +1,7 @@
 const http = require('http');
 const fs = require('fs');
 const path = require('path');
-const { execFile } = require('child_process');
+const QRCode = require('qrcode');
 const { WebSocketServer } = require('ws');
 
 const port = process.env.PORT || 3000;
@@ -89,24 +89,23 @@ function sendIndex(req, res, filePath) {
 }
 
 function sendQrCode(req, res) {
-  execFile(
-    'qrencode',
-    ['-t', 'SVG', '--svg-path', '-l', 'H', '-m', '2', '-o', '-', getAppUrl(req)],
-    { maxBuffer: 1024 * 1024 },
-    (err, stdout) => {
-      if (err) {
-        res.writeHead(500, { 'Content-Type': 'text/plain; charset=utf-8' });
-        res.end('QR code generation failed');
-        return;
-      }
+  QRCode.toString(getAppUrl(req), {
+    type: 'svg',
+    errorCorrectionLevel: 'H',
+    margin: 2,
+  }, (err, svg) => {
+    if (err) {
+      res.writeHead(500, { 'Content-Type': 'text/plain; charset=utf-8' });
+      res.end('QR code generation failed');
+      return;
+    }
 
-      res.writeHead(200, {
-        'Content-Type': 'image/svg+xml',
-        'Cache-Control': 'no-store',
-      });
-      res.end(stdout);
-    },
-  );
+    res.writeHead(200, {
+      'Content-Type': 'image/svg+xml',
+      'Cache-Control': 'no-store',
+    });
+    res.end(svg);
+  });
 }
 
 const server = http.createServer((req, res) => {
